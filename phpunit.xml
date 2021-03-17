@@ -1,0 +1,18 @@
+<phpunit verbose="true"
+         stderr="true"
+         cacheResult="false"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+>
+<testsuites>
+    <testsuite name="Test Suite">
+        <directory>./test/</directory>
+    </testsuite>
+</testsuites>
+
+<filter>
+    <whitelist>
+        <directory>./src/</directory>
+    </whitelist>
+</filter>
+</phpunit>

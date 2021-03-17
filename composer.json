@@ -1,0 +1,37 @@
+{
+    "name": "nubium/rate-limiting",
+    "description": "Provides services for rate-limiting",
+    "keywords": [
+        "rate-limiting",
+        "security"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "nubium/ip-tools": "^1.0",
+        "psr/log": "^1.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.71",
+        "phpstan/phpstan-phpunit": "^0.12.17",
+        "phpunit/phpunit": "^9.5",
+        "mockery/mockery": "^1.4",
+        "phpstan/phpstan-mockery": "^0.12.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nubium\\RateLimiting\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nubium\\RateLimiting\\Test\\": "test"
+        }
+    },
+    "repositories": [
+        {
+            "url": "https://github.com/nubium/ip-tools",
+            "type": "github"
+        }
+    ]
+}
