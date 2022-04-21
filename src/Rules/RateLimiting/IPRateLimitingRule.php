@@ -2,6 +2,7 @@
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\IRule;
 
 /**
@@ -9,24 +10,16 @@ use Nubium\RateLimiting\Rules\IRule;
  */
 class IPRateLimitingRule extends AbstractRateLimitingRule implements IRule
 {
-	const NAME = 'rl_ip';
+	public const NAME = 'rl_ip';
 
-	/**
-	 * @var array
-	 */
-	protected $matchIp;
-
-	/**
-	 * @var string
-	 */
-	protected $ipAddress;
+	/** @var string[] */
+	protected array $matchIp;
 
 
-	public function __construct(array $configuration, string $ipAddress)
+	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);
 
-		$this->ipAddress = $ipAddress;
 		$this->matchIp = $this->validateAndConvertValueToArray($configuration, 'ip');
 	}
 
@@ -34,10 +27,10 @@ class IPRateLimitingRule extends AbstractRateLimitingRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key): ?array
+	public function match(?string $key, IRateLimitingContext $context): ?array
 	{
-		if (in_array($this->ipAddress, $this->matchIp)) {
-			return $this->matchRule([$this->ipAddress, $key]);
+		if (in_array($context->getIp(), $this->matchIp)) {
+			return $this->matchRule([$context->getIp(), $key]);
 		}
 
 		return [];

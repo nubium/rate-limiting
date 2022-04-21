@@ -1,45 +1,34 @@
 <?php
 namespace Nubium\RateLimiting\Rules\Simple;
 
-
 use Nubium\IpTools\IpList;
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 
 class IPRangeRule extends AbstractSimpleRule
 {
-	const NAME = 'simple_ip_range';
+	public const NAME = 'simple_ip_range';
 
-	/**
-	 * @var IpList
-	 */
-	protected $matchIpList;
-
-	/**
-	 * @var string
-	 */
-	protected $matchIp;
-
-	/**
-	 * @var string
-	 */
-	protected $ipAddress;
+	/** @var string[] */
+	protected array $matchIp;
+	protected IpList $matchIpList;
 
 
-	public function __construct(array $configuration, string $ipAddress)
+	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);
 
-		$this->ipAddress = $ipAddress;
-		$this->matchIpList = IpList::createFromArray($this->validateAndConvertValueToArray($configuration, 'range'));
-		$this->matchIp = $configuration['range'];
+		$range = $this->validateAndConvertValueToArray($configuration, 'range');
+		$this->matchIpList = IpList::createFromArray($range);
+		$this->matchIp = $range;
 	}
 
 
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key): ?array
+	public function match(?string $key, IRateLimitingContext $context): ?array
 	{
-		if ($this->matchIpList->contains($this->ipAddress)) {
+		if ($this->matchIpList->contains($context->getIp())) {
 			return $this->matchRule();
 		}
 

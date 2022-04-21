@@ -2,6 +2,7 @@
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\IRule;
 
 /**
@@ -13,23 +14,10 @@ class IPRule extends AbstractRateLimitingRule implements IRule
 
 
 	/**
-	 * @var string
-	 */
-	protected $ipAddress;
-
-
-	public function __construct(array $configuration, string $ipAddress)
-	{
-		parent::__construct($configuration);
-		$this->ipAddress = $ipAddress;
-	}
-
-
-	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key): ?array
+	public function match(?string $key, IRateLimitingContext $context): ?array
 	{
-		return $this->matchRule(['iprule', $this->ipAddress, $key]);
+		return $this->matchRule(['iprule', $context->getIp(), $key]);
 	}
 }
