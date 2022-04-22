@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
@@ -13,9 +14,9 @@ class IPRangeRateLimitingRule extends AbstractRateLimitingRule implements IRule
 {
 	public const NAME = 'rl_ip_range';
 
-	protected IpList $matchIpList;
 	/** @var string[] */
 	protected array $matchIps;
+	protected IpList $matchIpList;
 
 
 	public function __construct(array $configuration)

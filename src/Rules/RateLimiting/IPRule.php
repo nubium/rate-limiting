@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
@@ -10,7 +11,7 @@ use Nubium\RateLimiting\Rules\IRule;
  */
 class IPRule extends AbstractRateLimitingRule implements IRule
 {
-	const NAME = 'rl_user_ip';
+	public const NAME = 'rl_user_ip';
 
 
 	/**

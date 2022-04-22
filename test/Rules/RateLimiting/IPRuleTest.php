@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
@@ -12,7 +13,7 @@ class IPRuleTest extends TestCase
 	/**
 	 * Test if hitCount match
 	 */
-	public function testHitCountMatch()
+	public function testHitCountMatch(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -40,7 +41,7 @@ class IPRuleTest extends TestCase
 	}
 
 
-	public function testMultipleIpAddressWrite()
+	public function testMultipleIpAddressWrite(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -85,7 +86,7 @@ class IPRuleTest extends TestCase
 		$this->assertEquals([], $rule2->match('key', $context));
 	}
 
-	public function testInvalidConfiguration()
+	public function testInvalidConfiguration(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')

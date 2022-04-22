@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Nubium\RateLimiting\Rules\Simple;
 
 use Nubium\RateLimiting\Context\IRateLimitingContext;
@@ -14,11 +16,14 @@ class IPRule extends AbstractSimpleRule implements IRule
 
 	use RuleConfigHelperTrait;
 
-	/** @var array */
+	/** @var string[] */
 	protected array $matchIp;
 	protected string $ipAddress;
 
 
+	/**
+	 * @inheritDoc
+	 */
 	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);

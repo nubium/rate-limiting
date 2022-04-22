@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Nubium\RateLimiting;
 
 use Nubium\RateLimiting\Context\IRateLimitingContext;
@@ -8,7 +10,6 @@ use Nubium\RateLimiting\Context\IRateLimitingContext;
  */
 class DummyRateLimitingService implements IRateLimitingService
 {
-
 	/**
 	 * @inheritDoc
 	 */

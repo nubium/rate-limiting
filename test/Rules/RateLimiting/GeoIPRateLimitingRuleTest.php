@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
@@ -14,7 +15,7 @@ class GeoIPRateLimitingRuleTest extends TestCase
 	/**
 	 * Test if hitCount match
 	 */
-	public function testHitCountMatch()
+	public function testHitCountMatch(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -51,7 +52,7 @@ class GeoIPRateLimitingRuleTest extends TestCase
 	/**
 	 * Test return value if hitCount less than in configure
 	 */
-	public function testHitCountLessThanConfigure()
+	public function testHitCountLessThanConfigure(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -85,7 +86,7 @@ class GeoIPRateLimitingRuleTest extends TestCase
 		$this->assertEquals([], $ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)));
 	}
 
-	public function testInvalidConfiguration()
+	public function testInvalidConfiguration(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')

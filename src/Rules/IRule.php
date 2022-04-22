@@ -1,5 +1,4 @@
 <?php
-
 namespace Nubium\RateLimiting\Rules;
 
 use Nubium\RateLimiting\Context\IRateLimitingContext;

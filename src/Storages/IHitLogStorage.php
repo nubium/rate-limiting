@@ -1,5 +1,4 @@
 <?php
-
 namespace Nubium\RateLimiting\Storages;
 
 interface IHitLogStorage

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Test\Rules\SimpleRule;
 
@@ -11,7 +12,7 @@ class IPRuleTest extends TestCase
 	/**
 	 * Test if hitCount match
 	 */
-	public function testMatch()
+	public function testMatch(): void
 	{
 		$ipRateLimitingRule = new IPRule([
 			'ip' => '192.168.1.1',
@@ -27,7 +28,7 @@ class IPRuleTest extends TestCase
 	/**
 	 * Test if different rules using different keys
 	 */
-	public function testNotMatch()
+	public function testNotMatch(): void
 	{
 		$ipRateLimitingRule = new IPRule([
 			'ip' => '192.168.1.1',
@@ -40,7 +41,7 @@ class IPRuleTest extends TestCase
 		$this->assertEquals([], $ipRateLimitingRule->match('key', $context));
 	}
 
-	public function testInvalidConfiguration()
+	public function testInvalidConfiguration(): void
 	{
 
 		$this->expectException(\InvalidArgumentException::class);

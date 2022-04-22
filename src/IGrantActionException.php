@@ -3,8 +3,6 @@ namespace Nubium\RateLimiting;
 
 interface IGrantActionException
 {
-
-
 	public function getRequiredAction(string $accessStorageKey = null): ?string;
 
 
