@@ -37,7 +37,7 @@ class IPRateLimitingRuleTest extends TestCase
 		$context = $this->createMock(IRateLimitingContext::class);
 		$context->method('getIp')->willReturn('192.168.1.1');
 
-		$this->assertEquals($ipRateLimitingRule->match('key', $context), ['foo', 'bar']);
+		$this->assertEquals(['foo', 'bar'], $ipRateLimitingRule->match('key', $context));
 	}
 
 	/**
@@ -68,7 +68,7 @@ class IPRateLimitingRuleTest extends TestCase
 		$context = $this->createMock(IRateLimitingContext::class);
 		$context->method('getIp')->willReturn('192.168.1.1');
 
-		$this->assertEquals($ipRateLimitingRule->match('key', $context), null);
+		$this->assertEquals([], $ipRateLimitingRule->match('key', $context));
 	}
 
 	public function testInvalidConfiguration()

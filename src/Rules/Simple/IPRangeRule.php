@@ -26,12 +26,12 @@ class IPRangeRule extends AbstractSimpleRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		if ($this->matchIpList->contains($context->getIp())) {
 			return $this->matchRule();
 		}
 
-		return null;
+		return [];
 	}
 }

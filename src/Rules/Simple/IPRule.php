@@ -30,12 +30,12 @@ class IPRule extends AbstractSimpleRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		if (in_array($context->getIp(), $this->matchIp)) {
 			return $this->matchRule();
 		}
 
-		return null;
+		return [];
 	}
 }

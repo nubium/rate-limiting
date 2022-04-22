@@ -33,12 +33,12 @@ class IPRangeRateLimitingRule extends AbstractRateLimitingRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		if ($this->matchIpList->contains($context->getIp())) {
 			return $this->matchRule(array_merge($this->matchIps, [$key]));
 		}
 
-		return null;
+		return [];
 	}
 }

@@ -16,7 +16,7 @@ class IPRule extends AbstractRateLimitingRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		return $this->matchRule(['iprule', $context->getIp(), $key]);
 	}

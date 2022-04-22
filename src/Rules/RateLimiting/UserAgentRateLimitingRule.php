@@ -27,7 +27,7 @@ class UserAgentRateLimitingRule extends AbstractRateLimitingRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		if (in_array($context->getUserAgent(), $this->configuration['userAgents'], true)) {
 			return $this->matchRule([md5($context->getUserAgent()), $key]);

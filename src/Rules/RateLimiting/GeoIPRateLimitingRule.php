@@ -33,12 +33,12 @@ class GeoIPRateLimitingRule extends AbstractRateLimitingRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key, IRateLimitingContext $context): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
 		if (in_array($this->geoIPFacade->getCountryCodeForIp($context->getIp()), $this->countries)) {
 			return $this->matchRule(array_merge($this->countries, [$key]));
 		}
 
-		return null;
+		return [];
 	}
 }

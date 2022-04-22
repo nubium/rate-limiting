@@ -77,9 +77,9 @@ abstract class AbstractRateLimitingRule implements IRule
 
 
 	/**
-	 * @return string[]|null list of actions
+	 * @return string[] list of actions
 	 */
-	protected function matchRule(array $keyParts): ?array
+	protected function matchRule(array $keyParts): array
 	{
 		$key = implode('_', $keyParts);
 		$key = str_replace('\\', '_', strtolower(get_class($this)) . '_' . $key);
@@ -89,6 +89,6 @@ abstract class AbstractRateLimitingRule implements IRule
 			return $this->responseAction;
 		}
 
-		return null;
+		return [];
 	}
 }

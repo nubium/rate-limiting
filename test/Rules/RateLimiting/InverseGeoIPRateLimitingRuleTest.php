@@ -45,7 +45,7 @@ class InverseGeoIPRateLimitingRuleTest extends TestCase
 			'storage' => $mock,
 		], $geoIpFacadeMock);
 
-		$this->assertEquals($ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)), ['foo', 'bar']);
+		$this->assertEquals(['foo', 'bar'], $ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)));
 	}
 
 	/**
@@ -82,7 +82,7 @@ class InverseGeoIPRateLimitingRuleTest extends TestCase
 			'storage' => $mock,
 		], $geoIpFacadeMock);
 
-		$this->assertEquals($ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)), null);
+		$this->assertEquals([], $ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)));
 	}
 
 	/**
@@ -119,7 +119,7 @@ class InverseGeoIPRateLimitingRuleTest extends TestCase
 			'storage' => $mock,
 		], $geoIpFacadeMock);
 
-		$this->assertEquals($ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)), null);
+		$this->assertEquals([], $ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)));
 	}
 
 	public function testInvalidConfiguration()

@@ -36,7 +36,7 @@ class IPRuleTest extends TestCase
 		$context = $this->createMock(IRateLimitingContext::class);
 		$context->method('getIp')->willReturn('192.168.1.1');
 
-		$this->assertEquals($ipRuleTest->match('key', $context), ['foo', 'bar']);
+		$this->assertEquals(['foo', 'bar'], $ipRuleTest->match('key', $context));
 	}
 
 
@@ -81,8 +81,8 @@ class IPRuleTest extends TestCase
 		$context = $this->createMock(IRateLimitingContext::class);
 		$context->method('getIp')->willReturn('192.168.1.1');
 
-		$this->assertEquals($rule1->match('key', $context), null);
-		$this->assertEquals($rule2->match('key', $context), null);
+		$this->assertEquals([], $rule1->match('key', $context));
+		$this->assertEquals([], $rule2->match('key', $context));
 	}
 
 	public function testInvalidConfiguration()
