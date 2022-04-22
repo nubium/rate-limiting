@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\RateLimiting\Rules\SimpleRule;
+namespace Nubium\RateLimiting\Test\Rules\SimpleRule;
 
 use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\Simple\IPRule;

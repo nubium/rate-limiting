@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\RateLimiting\Rules\RateLimiting;
+namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
 use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\RateLimiting\UserAgentRateLimitingRule;

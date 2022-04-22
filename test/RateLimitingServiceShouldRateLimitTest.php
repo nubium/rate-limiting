@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Tools\RateLimiting\RateLimitingService;
+namespace Nubium\RateLimiting\Test;
 
 use Nubium\IpTools\GeoIPFacade;
 use Nubium\RateLimiting\Context\IRateLimitingContext;

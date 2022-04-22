@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Tools\RateLimiting\RateLimitingService;
+namespace Nubium\RateLimiting\Test;
 
 use Nubium\RateLimiting\RateLimitingService;
 use Nubium\RateLimiting\Storages\IAllowAccessStorage;

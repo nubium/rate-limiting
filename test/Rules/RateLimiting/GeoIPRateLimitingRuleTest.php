@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\RateLimiting\Rules\RateLimiting;
+namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
 use Mockery\MockInterface;
 use Nubium\IpTools\GeoIPFacade;
