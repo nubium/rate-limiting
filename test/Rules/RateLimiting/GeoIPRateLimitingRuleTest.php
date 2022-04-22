@@ -3,7 +3,8 @@
 namespace Tests\RateLimiting\Rules\RateLimiting;
 
 use Mockery\MockInterface;
-use Nubium\IpTools\GeoIP;
+use Nubium\IpTools\GeoIPFacade;
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\RateLimiting\GeoIPRateLimitingRule;
 use Nubium\RateLimiting\Storages\IHitLogStorage;
 use PHPUnit\Framework\TestCase;
@@ -29,9 +30,9 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			->andReturn(1)
 			->getMock();
 
-		/** @var MockInterface|GeoIP $geoIpMock */
-		$geoIpMock = \Mockery::mock(GeoIP::class)
-			->shouldReceive('getCountryCode')
+		/** @var MockInterface|GeoIPFacade $geoIpFacadeMock */
+		$geoIpFacadeMock = \Mockery::mock(GeoIPFacade::class)
+			->shouldReceive('getCountryCodeForIp')
 			->once()
 			->andReturn('cz')
 			->getMock();
@@ -42,9 +43,9 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock,
-		], '192.168.1.1', $geoIpMock);
+		], $geoIpFacadeMock);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), ['foo', 'bar']);
+		$this->assertEquals($ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)), ['foo', 'bar']);
 	}
 
 	/**
@@ -66,9 +67,9 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			->andReturn(0)
 			->getMock();
 
-		/** @var MockInterface|GeoIP $geoIpMock */
-		$geoIpMock = \Mockery::mock(GeoIP::class)
-			->shouldReceive('getCountryCode')
+		/** @var MockInterface|GeoIPFacade $geoIpFacadeMock */
+		$geoIpFacadeMock = \Mockery::mock(GeoIPFacade::class)
+			->shouldReceive('getCountryCodeForIp')
 			->once()
 			->andReturn('cz')
 			->getMock();
@@ -79,9 +80,9 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock,
-		], '192.168.1.1', $geoIpMock);
+		], $geoIpFacadeMock);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), null);
+		$this->assertEquals($ipRateLimitingRule->match('key', $this->createMock(IRateLimitingContext::class)), null);
 	}
 
 	public function testInvalidConfiguration()
@@ -91,8 +92,8 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			->never()
 			->getMock();
 
-		/** @var MockInterface|GeoIP $geoIpMock */
-		$geoIpMock = \Mockery::mock(GeoIP::class)
+		/** @var MockInterface|GeoIPFacade $geoIpFacadeMock */
+		$geoIpFacadeMock = \Mockery::mock(GeoIPFacade::class)
 			->shouldReceive('getCountryCode')
 			->never()
 			->getMock();
@@ -105,6 +106,6 @@ class GeoIPRateLimitingRuleTest extends TestCase
 			'ttl' => 'zzz',
 			'action' => 'aaa',
 			'storage' => $mock,
-		], '192.168.1.1', $geoIpMock);
+		], $geoIpFacadeMock);
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\RateLimiting\Rules\SimpleRule;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\Simple\IPRule;
 use PHPUnit\Framework\TestCase;
 
@@ -15,9 +16,12 @@ class IPRuleTest extends TestCase
 		$ipRateLimitingRule = new IPRule([
 			'ip' => '192.168.1.1',
 			'action' => ['foo', 'bar']
-		], '192.168.1.1');
+		]);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), ['foo', 'bar']);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.1');
+
+		$this->assertEquals($ipRateLimitingRule->match('key', $context), ['foo', 'bar']);
 	}
 
 	/**
@@ -28,9 +32,12 @@ class IPRuleTest extends TestCase
 		$ipRateLimitingRule = new IPRule([
 			'ip' => '192.168.1.1',
 			'action' => ['foo', 'bar']
-		], '192.168.1.2');
+		]);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), null);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.2');
+
+		$this->assertEquals($ipRateLimitingRule->match('key', $context), null);
 	}
 
 	public function testInvalidConfiguration()
@@ -41,6 +48,6 @@ class IPRuleTest extends TestCase
 		new IPRule([
 			'ip' => '192.168.1.0',
 			'action' => 'aaa'
-		], '192.168.1.1');
+		]);
 	}
 }

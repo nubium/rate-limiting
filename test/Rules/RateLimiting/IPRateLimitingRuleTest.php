@@ -2,6 +2,7 @@
 
 namespace Tests\RateLimiting\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\RateLimiting\IPRateLimitingRule;
 use Nubium\RateLimiting\Storages\IHitLogStorage;
 use PHPUnit\Framework\TestCase;
@@ -31,9 +32,12 @@ class IPRateLimitingRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), ['foo', 'bar']);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.1');
+
+		$this->assertEquals($ipRateLimitingRule->match('key', $context), ['foo', 'bar']);
 	}
 
 	/**
@@ -59,9 +63,12 @@ class IPRateLimitingRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 
-		$this->assertEquals($ipRateLimitingRule->match('key'), null);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.1');
+
+		$this->assertEquals($ipRateLimitingRule->match('key', $context), null);
 	}
 
 	public function testInvalidConfiguration()
@@ -79,6 +86,6 @@ class IPRateLimitingRuleTest extends TestCase
 			'ttl' => 'zzz',
 			'action' => 'aaa',
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 	}
 }
