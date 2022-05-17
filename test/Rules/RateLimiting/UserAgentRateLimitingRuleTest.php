@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\RateLimiting\Rules\RateLimiting;
+namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\RateLimiting\UserAgentRateLimitingRule;
 use Nubium\RateLimiting\Storages\IHitLogStorage;
 use PHPUnit\Framework\TestCase;
@@ -31,10 +32,13 @@ class UserAgentRateLimitingRuleTest extends TestCase
 				'hitCount' => 1,
 				'storage' => $mockedStorage,
 			],
-			'foo'
+
 		);
 
-		static::assertEquals(['bar'], $rule->match('key'));
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getUserAgent')->willReturn('foo');
+
+		static::assertEquals(['bar'], $rule->match('key', $context));
 	}
 
 
@@ -50,10 +54,12 @@ class UserAgentRateLimitingRuleTest extends TestCase
 				'ttl' => 60,
 				'hitCount' => 1,
 				'storage' => $mockedStorage,
-			],
-			'baz'
+			]
 		);
 
-		static::assertEquals([], $rule->match('key'));
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getUserAgent')->willReturn('baz');
+
+		static::assertEquals([], $rule->match('key', $context));
 	}
 }

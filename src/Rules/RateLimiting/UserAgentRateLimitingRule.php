@@ -3,36 +3,34 @@ declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
+
 /**
  * Matches all user agents in configuration. Each user agent has its own counter.
  */
 class UserAgentRateLimitingRule extends AbstractRateLimitingRule
 {
-	const NAME = 'rl_user_agent';
+	public const NAME = 'rl_user_agent';
 
-	/** @var array */
-	private $configuration;
-
-	/** @var string */
-	private $userAgent;
+	/** @var mixed[] */
+	private array $configuration;
 
 
-	public function __construct(array $configuration, string $userAgent)
+	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);
 
 		$this->configuration = $configuration;
-		$this->userAgent = $userAgent;
 	}
 
 
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
-		if (in_array($this->userAgent, $this->configuration['userAgents'], true)) {
-			return $this->matchRule([md5($this->userAgent), $key]);
+		if (in_array($context->getUserAgent(), $this->configuration['userAgents'], true)) {
+			return $this->matchRule([md5($context->getUserAgent()), $key]);
 		}
 
 		return [];

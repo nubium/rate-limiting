@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
@@ -14,29 +15,15 @@ abstract class AbstractRateLimitingRule implements IRule
 {
 	use RuleConfigHelperTrait;
 
-	/**
-	 * @var int
-	 */
-	protected $hitCount;
-
-	/**
-	 * @var int
-	 */
-	protected $ttl;
-
-	/**
-	 * @var string[]
-	 */
-	protected $responseAction;
-
-	/**
-	 * @var IHitLogStorage
-	 */
-	protected $hitLogStorage;
+	/** @var string[] */
+	protected array $responseAction;
+	protected int $hitCount;
+	protected int $ttl;
+	protected IHitLogStorage $hitLogStorage;
 
 
 	/**
-	 * @param array $configuration
+	 * @param mixed[] $configuration
 	 */
 	public function __construct(array $configuration)
 	{
@@ -77,9 +64,10 @@ abstract class AbstractRateLimitingRule implements IRule
 
 
 	/**
-	 * @return string[]|null list of actions
+	 * @param array<int, string|null> $keyParts
+	 * @return string[] list of actions
 	 */
-	protected function matchRule(array $keyParts): ?array
+	protected function matchRule(array $keyParts): array
 	{
 		$key = implode('_', $keyParts);
 		$key = str_replace('\\', '_', strtolower(get_class($this)) . '_' . $key);
@@ -89,6 +77,6 @@ abstract class AbstractRateLimitingRule implements IRule
 			return $this->responseAction;
 		}
 
-		return null;
+		return [];
 	}
 }

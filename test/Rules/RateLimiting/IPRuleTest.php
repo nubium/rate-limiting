@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
-namespace Tests\RateLimiting\Rules\RateLimiting;
+namespace Nubium\RateLimiting\Test\Rules\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\RateLimiting\IPRule;
 use Nubium\RateLimiting\Storages\IHitLogStorage;
 use PHPUnit\Framework\TestCase;
@@ -11,7 +13,7 @@ class IPRuleTest extends TestCase
 	/**
 	 * Test if hitCount match
 	 */
-	public function testHitCountMatch()
+	public function testHitCountMatch(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -30,13 +32,16 @@ class IPRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 
-		$this->assertEquals($ipRuleTest->match('key'), ['foo', 'bar']);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.1');
+
+		$this->assertEquals(['foo', 'bar'], $ipRuleTest->match('key', $context));
 	}
 
 
-	public function testMultipleIpAddressWrite()
+	public function testMultipleIpAddressWrite(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -65,20 +70,23 @@ class IPRuleTest extends TestCase
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 
 		$rule2 = new IPRule([
 			'hitCount'=> 1,
 			'ttl' => 300,
 			'action' => ['foo', 'bar'],
 			'storage' => $mock
-		], '192.168.1.2');
+		]);
 
-		$this->assertEquals($rule1->match('key'), null);
-		$this->assertEquals($rule2->match('key'), null);
+		$context = $this->createMock(IRateLimitingContext::class);
+		$context->method('getIp')->willReturn('192.168.1.1');
+
+		$this->assertEquals([], $rule1->match('key', $context));
+		$this->assertEquals([], $rule2->match('key', $context));
 	}
 
-	public function testInvalidConfiguration()
+	public function testInvalidConfiguration(): void
 	{
 		$mock = \Mockery::mock(IHitLogStorage::class)
 			->shouldReceive('increment')
@@ -92,6 +100,6 @@ class IPRuleTest extends TestCase
 			'ttl' => 'zzz',
 			'action' => 'aaa',
 			'storage' => $mock
-		], '192.168.1.1');
+		]);
 	}
 }

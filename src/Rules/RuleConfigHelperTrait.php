@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules;
 
@@ -6,6 +7,10 @@ trait RuleConfigHelperTrait
 {
 	/**
 	 * Validates element in array and convert value to array if necessarily
+	 *
+	 * @param mixed[] $sourceArray
+	 *
+	 * @return mixed[]
 	 */
 	protected function validateAndConvertValueToArray(array $sourceArray, string $key): array
 	{
@@ -13,7 +18,7 @@ trait RuleConfigHelperTrait
 			return is_string($value) || is_array($value);
 		});
 
-		$list = null;
+		$list = [];
 
 		if (is_string($sourceArray[$key])) {
 			$list = [$sourceArray[$key]];
@@ -26,6 +31,8 @@ trait RuleConfigHelperTrait
 
 	/**
 	 * Validates element in array.
+	 *
+	 * @param mixed[] $sourceArray
 	 */
 	protected function validateConfiguration(array $sourceArray, string $key, callable $callback = null): void
 	{

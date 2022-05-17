@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Tools\RateLimiting\RateLimitingService;
+namespace Nubium\RateLimiting\Test;
 
-use Nubium\IpTools\GeoIP;
+use Nubium\IpTools\GeoIPFacade;
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\RateLimitingService;
 use Nubium\RateLimiting\Rules\IRule;
 use Nubium\RateLimiting\Rules\RateLimiting\GeoIPRateLimitingRule;
@@ -44,17 +45,18 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 		$allowAccessStorage->shouldReceive('hasAccess')->andReturn(false);
 		$allowAccessStorage->shouldReceive('getRequiredAction')->andReturn(null);
 
-		$geoIp = $this->prepareMockGeoIP();
-		$mockStorage = $this->prepareMockStorage();
+		$geoIpFacade = $this->createMockGeoIPFacade();
+		$mockStorage = $this->createMockStorage();
+		$context = $this->createMockContext('127.0.0.1');
 
 		$whitelistRules = [];
 		$blacklistRules = [
-			$this->prepareGeoIpRule('cn', 1, $mockStorage, $geoIp, '127.0.0.1'),
-			$this->prepareIPRangeRule('127.0.0.1', '128.0.0.0/8', 10, $mockStorage),
+			$this->prepareGeoIpRule('cn', 1, $mockStorage, $geoIpFacade),
+			$this->prepareIPRangeRule('128.0.0.0/8', 10, $mockStorage),
 		];
 		$service = $this->prepareService($whitelistRules, $blacklistRules, $allowAccessStorage, 60);
 		for ($i = 1; $i <= 100; $i++) {
-			$this->assertFalse($service->shouldRateLimit());
+			$this->assertFalse($service->shouldRateLimit($context));
 		}
 	}
 
@@ -66,19 +68,20 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 		$allowAccessStorage->shouldReceive('getRequiredAction')->andReturn(null);
 		$allowAccessStorage->shouldReceive('setRequiredAction')->with(null, 'christmas');
 
-		$geoIp = $this->prepareMockGeoIP();
-		$mockStorage = $this->prepareMockStorage();
+		$geoIpFacade = $this->createMockGeoIPFacade();
+		$mockStorage = $this->createMockStorage();
+		$context = $this->createMockContext('127.0.0.2');
 
 		$whitelistRules = [];
 		$blacklistRules = [
-			$this->prepareGeoIpRule('de', 50, $mockStorage, $geoIp, '127.0.0.2'),
+			$this->prepareGeoIpRule('de', 50, $mockStorage, $geoIpFacade),
 		];
 		$service = $this->prepareService($whitelistRules, $blacklistRules, $allowAccessStorage, 60);
 		for ($i = 1; $i <= 49; $i++) {
-			$this->assertFalse($service->shouldRateLimit());
+			$this->assertFalse($service->shouldRateLimit($context));
 		}
 
-		$this->assertTrue($service->shouldRateLimit());
+		$this->assertTrue($service->shouldRateLimit($context));
 	}
 
 
@@ -89,18 +92,19 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 		$allowAccessStorage->shouldReceive('getRequiredAction')->andReturn(null);
 		$allowAccessStorage->shouldReceive('setRequiredAction')->with(null, 'christmas');
 
-		$mockStorage = $this->prepareMockStorage();
+		$mockStorage = $this->createMockStorage();
+		$context = $this->createMockContext('127.0.0.1');
 
 		$whitelistRules = [];
 		$blacklistRules = [
-			$this->prepareIPRangeRule('127.0.0.1', '127.0.0.0/8', 10, $mockStorage),
+			$this->prepareIPRangeRule('127.0.0.0/8', 10, $mockStorage),
 		];
 		$service = $this->prepareService($whitelistRules, $blacklistRules, $allowAccessStorage, 60);
 		for ($i = 1; $i <= 9; $i++) {
-			$this->assertFalse($service->shouldRateLimit());
+			$this->assertFalse($service->shouldRateLimit($context));
 		}
 
-		$this->assertTrue($service->shouldRateLimit());
+		$this->assertTrue($service->shouldRateLimit($context));
 	}
 
 
@@ -111,18 +115,19 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 		$allowAccessStorage->shouldReceive('getRequiredAction')->andReturn(null);
 		$allowAccessStorage->shouldReceive('setRequiredAction')->with(null, 'christmas');
 
-		$mockStorage = $this->prepareMockStorage();
+		$mockStorage = $this->createMockStorage();
+		$context = $this->createMockContext('168.156.12.57');
 
 		$whitelistRules = [];
 		$blacklistRules = [
-			$this->prepareIpRule(8, '168.156.12.57', $mockStorage),
+			$this->prepareIpRule(8, $mockStorage),
 		];
 		$service = $this->prepareService($whitelistRules, $blacklistRules, $allowAccessStorage, 60);
 		for ($i = 1; $i <= 7; $i++) {
-			$this->assertFalse($service->shouldRateLimit());
+			$this->assertFalse($service->shouldRateLimit($context));
 		}
 
-		$this->assertTrue($service->shouldRateLimit());
+		$this->assertTrue($service->shouldRateLimit($context));
 	}
 
 
@@ -130,8 +135,7 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 		string $country,
 		int $hitCount,
 		IHitLogStorage $mockStorage,
-		GeoIP $geoIp,
-		string $ipAddress = '156.142.43.1'
+		GeoIPFacade $geoIpFacade
 	): IRule {
 		return new GeoIPRateLimitingRule(
 			[
@@ -141,13 +145,12 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 				'action' => ['christmas'],
 				'storage' => $mockStorage,
 			],
-			$ipAddress,
-			$geoIp
+			$geoIpFacade
 		);
 	}
 
 
-	private function prepareIPRangeRule(string $ipAddress, string $range, int $hitCount, IHitLogStorage $mockStorage): IRule
+	private function prepareIPRangeRule(string $range, int $hitCount, IHitLogStorage $mockStorage): IRule
 	{
 		return new IPRangeRateLimitingRule([
 			'hitCount' => $hitCount,
@@ -155,25 +158,25 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 			'ttl' => 300,
 			'action' => ['christmas'],
 			'storage' => $mockStorage,
-		], $ipAddress);
+		]);
 	}
 
 
-	private function prepareIpRule(int $hitCount, string $ipAddress, IHitLogStorage $mockStorage): IRule
+	private function prepareIpRule(int $hitCount, IHitLogStorage $mockStorage): IRule
 	{
 		return new IPRule([
 			'hitCount' => $hitCount,
 			'ttl' => 300,
 			'action' => ['christmas'],
 			'storage' => $mockStorage,
-		], $ipAddress);
+		]);
 	}
 
 
 	/**
 	 * @return \Mockery\MockInterface|IHitLogStorage
 	 */
-	private function prepareMockStorage(): IHitLogStorage
+	private function createMockStorage(): IHitLogStorage
 	{
 		$counter = 0;
 		/** @var IHitLogStorage|\Mockery\MockInterface $mockStorage */
@@ -188,14 +191,28 @@ class RateLimitingServiceShouldRateLimitTest extends TestCase
 	}
 
 	/**
-	 * @return \Mockery\MockInterface|GeoIP
+	 * @return \Mockery\MockInterface|GeoIPFacade
 	 */
-	private function prepareMockGeoIP(): GeoIP
+	private function createMockGeoIPFacade(): GeoIPFacade
 	{
-		/** @var \Mockery\MockInterface|GeoIP $mock */
-		$mock = \Mockery::mock(GeoIP::class)
-			->shouldReceive('getCountryCode')
+		/** @var \Mockery\MockInterface|GeoIPFacade $mock */
+		$mock = \Mockery::mock(GeoIPFacade::class)
+			->shouldReceive('getCountryCodeForIp')
 			->andReturn('de')
+			->getMock();
+
+		return $mock;
+	}
+
+	/**
+	 * @return \Mockery\MockInterface|IRateLimitingContext
+	 */
+	private function createMockContext(string $ip): IRateLimitingContext
+	{
+		/** @var \Mockery\MockInterface|IRateLimitingContext $mock */
+		$mock = \Mockery::mock(IRateLimitingContext::class)
+			->shouldReceive('getIp')
+			->andReturn($ip)
 			->getMock();
 
 		return $mock;

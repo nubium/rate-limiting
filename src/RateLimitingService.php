@@ -1,44 +1,34 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting;
 
+use Nubium\RateLimiting\Context\IRateLimitingContext;
+use Nubium\RateLimiting\Rules\IRule;
 use Nubium\RateLimiting\Storages\StorageException;
 use Psr\Log\LoggerInterface;
 
 class RateLimitingService implements IRateLimitingService
 {
-	/**
-	 * @var Rules\IRule[]
-	 */
-	private $whitelistRules;
+	/** @var IRule[] */
+	private array$whitelistRules;
+	/** @var IRule[] */
+	private array $blacklistRules;
+	private Storages\IAllowAccessStorage $allowAccessStorage;
+	private LoggerInterface $logger;
+	private int $allowAccessLength;
 
-	/**
-	 * @var Rules\IRule[]
-	 */
-	private $blacklistRules;
-
-	/**
-	 * @var Storages\IAllowAccessStorage
-	 */
-	private $allowAccessStorage;
 
 	/**
-	 * @var LoggerInterface
+	 * @param IRule[] $whitelistRules
+	 * @param IRule[] $blacklistRules
 	 */
-	private $logger;
-
-	/**
-	 * @var int Seconds
-	 */
-	private $allowAccessLength;
-
-
 	public function __construct(
 		array $whitelistRules,
 		array $blacklistRules,
 		Storages\IAllowAccessStorage $allowAccessStorage,
 		LoggerInterface $logger,
-		$allowAccessLength
+		int $allowAccessLength
 	) {
 		$this->whitelistRules = $whitelistRules;
 		$this->blacklistRules = $blacklistRules;
@@ -51,7 +41,7 @@ class RateLimitingService implements IRateLimitingService
 	/**
 	 * @inheritDoc
 	 */
-	public function shouldRateLimit(?string $accessStorageKey = null, ?string $rulesKey = null): bool
+	public function shouldRateLimit(IRateLimitingContext $context, ?string $accessStorageKey = null, ?string $rulesKey = null): bool
 	{
 		$keyString = (string)$accessStorageKey;
 
@@ -66,7 +56,7 @@ class RateLimitingService implements IRateLimitingService
 		}
 
 		try {
-			$actions = $this->getMatchingActions($rulesKey);
+			$actions = $this->getMatchingActions($rulesKey, $context);
 		} catch (StorageException $e) {
 			$this->logger->error('Rate limiting bypassed: ' . $e->getMessage(), [
 				'exception' => $e,
@@ -86,10 +76,7 @@ class RateLimitingService implements IRateLimitingService
 	}
 
 
-	/**
-	 * @return null|string
-	 */
-	public function getRequiredAction(string $accessStorageKey = null)
+	public function getRequiredAction(string $accessStorageKey = null): ?string
 	{
 		return $this->allowAccessStorage->getRequiredAction((string)$accessStorageKey);
 	}
@@ -98,16 +85,13 @@ class RateLimitingService implements IRateLimitingService
 	/**
 	 * Grant (temporary) rate limiting exception.
 	 */
-	public function grantException(string $accessStorageKey = null)
+	public function grantException(string $accessStorageKey = null): void
 	{
 		$this->allowAccessStorage->grantAccess((string)$accessStorageKey, $this->allowAccessLength);
 	}
 
 
-	/**
-	 * @return bool
-	 */
-	public function hasException(string $accessStorageKey = null)
+	public function hasException(string $accessStorageKey = null): bool
 	{
 		return $this->allowAccessStorage->hasAccess((string)$accessStorageKey);
 	}
@@ -124,11 +108,11 @@ class RateLimitingService implements IRateLimitingService
 	 * @return string[]
 	 * @throws StorageException
 	 */
-	protected function getMatchingActions(?string $rulesKey): array
+	protected function getMatchingActions(?string $rulesKey, IRateLimitingContext $context): array
 	{
 		// ak matchne whitelist pravidlo, tak mame hotovo
 		foreach ($this->whitelistRules as $whitelistRule) {
-			if ($whitelistRule->match($rulesKey)) {
+			if ($whitelistRule->match($rulesKey, $context)) {
 				return [];
 			}
 		}
@@ -136,7 +120,7 @@ class RateLimitingService implements IRateLimitingService
 		// blacklist pravidla musime prejst vsetky
 		$actions = [];
 		foreach ($this->blacklistRules as $blacklistRule) {
-			$actions += ($blacklistRule->match($rulesKey) ?: []);
+			$actions += ($blacklistRule->match($rulesKey, $context) ?: []);
 		}
 
 		return $actions;

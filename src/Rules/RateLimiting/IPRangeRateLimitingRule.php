@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\RateLimiting;
 
 use Nubium\IpTools\IpList;
+use Nubium\RateLimiting\Context\IRateLimitingContext;
 use Nubium\RateLimiting\Rules\IRule;
 
 /**
@@ -10,29 +12,17 @@ use Nubium\RateLimiting\Rules\IRule;
  */
 class IPRangeRateLimitingRule extends AbstractRateLimitingRule implements IRule
 {
-	const NAME = 'rl_ip_range';
+	public const NAME = 'rl_ip_range';
 
-	/**
-	 * @var IpList
-	 */
-	protected $matchIpList;
-
-	/**
-	 * @var string[]
-	 */
-	protected $matchIps;
-
-	/**
-	 * @var string
-	 */
-	protected $ipAddress;
+	/** @var string[] */
+	protected array $matchIps;
+	protected IpList $matchIpList;
 
 
-	public function __construct(array $configuration, string $ipAddress)
+	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);
 
-		$this->ipAddress = $ipAddress;
 		$this->matchIps = array_map(
 			fn($ip) => (string)$ip,
 			$this->validateAndConvertValueToArray($configuration, 'range')
@@ -44,12 +34,12 @@ class IPRangeRateLimitingRule extends AbstractRateLimitingRule implements IRule
 	/**
 	 * @inheritDoc
 	 */
-	public function match(?string $key): ?array
+	public function match(?string $key, IRateLimitingContext $context): array
 	{
-		if ($this->matchIpList->contains($this->ipAddress)) {
+		if ($this->matchIpList->contains($context->getIp())) {
 			return $this->matchRule(array_merge($this->matchIps, [$key]));
 		}
 
-		return null;
+		return [];
 	}
 }

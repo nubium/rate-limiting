@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Nubium\RateLimiting\Rules\Simple;
 
@@ -12,12 +13,13 @@ abstract class AbstractSimpleRule implements IRule
 {
 	use RuleConfigHelperTrait;
 
+	/** @var string[] */
+	protected array $responseActions;
+
+
 	/**
-	 * @var string[]
+	 * @param mixed[] $configuration
 	 */
-	protected $responseActions;
-
-
 	public function __construct(array $configuration)
 	{
 		$this->validateConfiguration(
